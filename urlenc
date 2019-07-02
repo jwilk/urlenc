@@ -14,11 +14,19 @@ use v5.10;
 
 use English qw(-no_match_vars);
 
+use Getopt::ArgParse;
+
 # From RFC 3986, §2.3:
 #   unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
 my @unreserved = ('A'..'Z', 'a'..'z', '0'..'9', '-', '.', '_', '~');
 my %unreserved = map { $_ => 1 } @unreserved;
+
+my $ap = Getopt::ArgParse->new_parser();
+$ap->add_args(
+    ['string', nargs => '+', required => 1, help => 'string to escape'],
+);
+my $opts = $ap->parse_args();
 
 sub escape {
     my $chr = $1;
@@ -28,7 +36,7 @@ sub escape {
     return sprintf '%%%02X', (ord $chr);
 }
 
-for (@ARGV) {
+for ($opts->string) {
     s/(.)/escape/sge;
     say;
 }
