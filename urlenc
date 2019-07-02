@@ -24,13 +24,21 @@ my %unreserved = map { $_ => 1 } @unreserved;
 
 my $ap = Getopt::ArgParse->new_parser();
 $ap->add_args(
+    ['--keep', '-k', metavar => 'CHARS', help => 'keep these characters unescaped'],
+    ['--only', '-c', metavar => 'CHARS', help => 'escape only these characters'],
     ['string', nargs => '+', required => 1, help => 'string to escape'],
 );
 my $opts = $ap->parse_args();
+my %keep = map { $_ => 1 } (split //, $opts->keep // '');
+my %only = map { $_ => 1 } (split //, $opts->only // '');
 
 sub escape {
     my $chr = $1;
-    if (exists $unreserved{$chr}) {
+    if (%only) {
+        if (not exists $only{$chr}) {
+            return $chr;
+        }
+    } elsif (exists $unreserved{$chr} or exists $keep{$chr}) {
         return $chr;
     }
     return sprintf '%%%02X', (ord $chr);
