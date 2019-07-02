@@ -1,0 +1,36 @@
+#!/usr/bin/env perl
+
+# Copyright © 2019 Jakub Wilk <jwilk@jwilk.net>
+# SPDX-License-Identifier: MIT
+
+# cwd in @INC is harmful:
+# http://www.nntp.perl.org/group/perl.perl5.porters/2010/08/msg162729.html
+no lib '.';
+
+use strict;
+use warnings;
+
+use v5.10;
+
+use English qw(-no_match_vars);
+
+# From RFC 3986, §2.3:
+#   unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+
+my @unreserved = ('A'..'Z', 'a'..'z', '-', '.', '_', '~');
+my %unreserved = map { $_ => 1 } @unreserved;
+
+sub escape {
+    my $chr = $1;
+    if (exists $unreserved{$chr}) {
+        return $chr;
+    }
+    return sprintf '%%%02X', (ord $chr);
+}
+
+for (@ARGV) {
+    s/(.)/escape/sge;
+    say;
+}
+
+# vim:ts=4 sts=4 sw=4 et
