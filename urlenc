@@ -32,7 +32,8 @@ my $opts = $ap->parse_args();
 my %keep = map { $_ => 1 } (split //, $opts->keep // '');
 my %only = map { $_ => 1 } (split //, $opts->only // '');
 
-sub escape {
+sub escape
+{
     my $chr = $1;
     if (%only) {
         if (not exists $only{$chr}) {
