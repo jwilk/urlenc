@@ -32,9 +32,9 @@ my $opts = $ap->parse_args();
 my %keep = map { $_ => 1 } (split //, $opts->keep // '');
 my %only = map { $_ => 1 } (split //, $opts->only // '');
 
-sub escape
+sub escape_one
 {
-    my $chr = $1;
+    my ($chr) = @_;
     if (%only) {
         if (not exists $only{$chr}) {
             return $chr;
@@ -45,16 +45,20 @@ sub escape
     return sprintf '%%%02X', (ord $chr);
 }
 
+sub escape
+{
+    s/(.)/escape_one($1)/sge;
+    return $_;
+}
+
 if (@{$opts->string}) {
     for ($opts->string) {
-        s/(.)/escape/sge;
-        say;
+        say escape;
     }
 } else {
     while (<STDIN>) {
         chomp;
-        s/(.)/escape/sge;
-        say;
+        say escape;
     }
 }
 
