@@ -26,7 +26,7 @@ my $ap = Getopt::ArgParse->new_parser();
 $ap->add_args(
     ['--keep', '-k', metavar => 'CHARS', help => 'keep these characters unescaped'],
     ['--only', '-c', metavar => 'CHARS', help => 'escape only these characters'],
-    ['string', nargs => '+', required => 1, help => 'string to escape'],
+    ['string', nargs => '*', required => 0, help => 'string to escape'],
 );
 my $opts = $ap->parse_args();
 my %keep = map { $_ => 1 } (split //, $opts->keep // '');
@@ -44,9 +44,17 @@ sub escape {
     return sprintf '%%%02X', (ord $chr);
 }
 
-for ($opts->string) {
-    s/(.)/escape/sge;
-    say;
+if (@{$opts->string}) {
+    for ($opts->string) {
+        s/(.)/escape/sge;
+        say;
+    }
+} else {
+    while (<STDIN>) {
+        chomp;
+        s/(.)/escape/sge;
+        say;
+    }
 }
 
 # vim:ts=4 sts=4 sw=4 et
